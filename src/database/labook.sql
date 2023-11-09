@@ -18,3 +18,30 @@ VALUES
 
 SELECT * FROM users;
 
+
+DROP TABLE posts;
+
+
+CREATE TABLE posts (
+  id TEXT PRIMARY KEY NOT NULL UNIQUE,
+  creator_id TEXT NOT NULL,
+  content TEXT NOT NULL,
+  likes INTEGER NOT NULL,
+  dislikes INTEGER NOT NULL,
+  created_at DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime')),
+  updated_at DATETIME DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))
+--   FOREIGN KEY (creator_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+INSERT INTO posts (id, creator_id, content, likes, dislikes)
+VALUES
+  ('post1', 'user1', 'Primeiro post', 10, 2),
+  ('post2', 'user2', 'Segundo post', 8, 3),
+  ('post3', 'user3', 'Terceiro post', 12, 1),
+  ('post4', 'user4', 'Quarto post', 15, 5),
+  ('post5', 'user5', 'Quinto post', 20, 0);
+
+SELECT * FROM posts;
+
+
+
