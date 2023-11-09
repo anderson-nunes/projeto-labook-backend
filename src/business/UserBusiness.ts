@@ -1,4 +1,5 @@
 import { UserDatabase } from "../database/UserDatabase";
+import { BadRequestError } from "../errors/BadRequestError";
 import { User } from "../models/users";
 import { UserDB } from "../types";
 
@@ -27,26 +28,30 @@ export class UserBusiness {
     const { id, name, email, password, role } = input;
 
     if (typeof id !== "string" || id.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 4 caracteres"
       );
     }
 
     if (typeof name !== "string" || name.length < 3) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'nome' deve ser uma string com pelo menos 3 caracteres"
       );
     }
 
     if (!email || !email.includes("@")) {
-      throw new Error(`O campo 'email' deve ser um endereço de e-mail válido`);
+      throw new BadRequestError(
+        `O campo 'email' deve ser um endereço de e-mail válido`
+      );
     }
 
     if (typeof password !== "string" || password.length < 6) {
-      throw new Error(`O campo 'password' deve ter pelo menos 6 caracteres.`);
+      throw new BadRequestError(
+        `O campo 'password' deve ter pelo menos 6 caracteres.`
+      );
     }
     if (typeof role !== "string" || role.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         `O campo 'role' deve ser uma string com pelo menos 4 caracteres`
       );
     }
@@ -55,7 +60,7 @@ export class UserBusiness {
     const userDBExists = await userDatabase.findUserById(id);
 
     if (userDBExists) {
-      throw new Error("'id' já existente");
+      throw new BadRequestError("'id' já existente");
     }
 
     const newUser = new User(
@@ -85,26 +90,30 @@ export class UserBusiness {
     const { id, name, email, password, role } = input;
 
     if (typeof id !== "string" || id.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 4 caracteres"
       );
     }
 
     if (typeof name !== "string" || name.length < 3) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'nome' deve ser uma string com pelo menos 3 caracteres"
       );
     }
 
     if (!email || !email.includes("@")) {
-      throw new Error(`O campo 'email' deve ser um endereço de e-mail válido`);
+      throw new BadRequestError(
+        `O campo 'email' deve ser um endereço de e-mail válido`
+      );
     }
 
     if (typeof password !== "string" || password.length < 6) {
-      throw new Error(`O campo 'password' deve ter pelo menos 6 caracteres.`);
+      throw new BadRequestError(
+        `O campo 'password' deve ter pelo menos 6 caracteres.`
+      );
     }
     if (typeof role !== "string" || role.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         `O campo 'role' deve ser uma string com pelo menos 4 caracteres`
       );
     }
@@ -113,7 +122,7 @@ export class UserBusiness {
     const userDBExists = await userDatabase.findUserById(id);
 
     if (!userDBExists) {
-      throw new Error("Usuário não econtrado");
+      throw new BadRequestError("Usuário não econtrado");
     }
 
     userDBExists.name = name;
@@ -130,14 +139,14 @@ export class UserBusiness {
     const { id } = input;
 
     if (typeof id !== "string") {
-      throw new Error("O campo 'id' deve ser umas string");
+      throw new BadRequestError("O campo 'id' deve ser umas string");
     }
 
     const userDatabase = new UserDatabase();
     const userDBExists = await userDatabase.findUserById(id);
 
     if (!userDBExists) {
-      throw new Error("Não foi possível encontrar o usuário");
+      throw new BadRequestError("Não foi possível encontrar o usuário");
     }
 
     await userDatabase.deleteUser(id);
