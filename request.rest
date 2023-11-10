@@ -30,3 +30,15 @@ DELETE  http://localhost:3003/users/u008
 
 GET http://localhost:3003/posts
 ###
+
+POST http://localhost:3003/posts
+Content-Type: application/json
+
+  {
+    "id": "post7",
+    "creator_id": "user7",
+    "content": "Sétimo post",
+    "likes": 8,
+    "dislikes": 1
+  }
+###

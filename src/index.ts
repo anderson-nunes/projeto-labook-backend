@@ -17,3 +17,4 @@ app.use("/users", userRouter);
 const postController = new PostController();
 
 app.get("/posts", postController.getPosts);
+app.post("/posts", postController.createPost);
