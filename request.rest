@@ -5,7 +5,7 @@ POST http://localhost:3003/users
 Content-Type: application/json
 
   {
-    "id": "u008",
+    "id": "u005",
     "name": "André",
     "email": "andre@email.com",
     "password": "33323212",
@@ -41,4 +41,19 @@ Content-Type: application/json
     "likes": 8,
     "dislikes": 1
   }
+###
+
+PUT http://localhost:3003/posts/post1
+Content-Type: application/json
+
+  {
+    "id": "post1",
+    "creator_id": "user1",
+    "content": "Primeiro Post",
+    "likes": 10,
+    "dislikes": 12
+  }
+###
+
+DELETE  http://localhost:3003/posts/post7
 ###

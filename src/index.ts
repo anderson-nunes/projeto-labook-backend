@@ -18,3 +18,5 @@ const postController = new PostController();
 
 app.get("/posts", postController.getPosts);
 app.post("/posts", postController.createPost);
+app.put("/posts/:id", postController.updateUsers);
+app.delete("/posts/:id", postController.deletePost);
