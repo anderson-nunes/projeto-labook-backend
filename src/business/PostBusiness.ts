@@ -1,4 +1,5 @@
 import { PostDatabase } from "../database/PostDatabase";
+import { BadRequestError } from "../errors/BadRequestError";
 import { Post } from "../models/posts";
 import { PostDB } from "../types";
 
@@ -26,36 +27,36 @@ export class PostBusiness {
     const { id, creatorId, content, likes, dislikes } = input;
 
     if (typeof id !== "string" || id.length < 5) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 5 caracteres"
       );
     }
 
     if (typeof creatorId !== "string" || creatorId.length < 5) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 5 caracteres"
       );
     }
 
     if (typeof content !== "string" || content.length < 2) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 2 caracteres"
       );
     }
 
     if (typeof likes !== "number") {
-      throw new Error("O campo 'likes' deve ser um número");
+      throw new BadRequestError("O campo 'likes' deve ser um número");
     }
 
     if (typeof dislikes !== "number") {
-      throw new Error("O campo 'likes' deve ser um número");
+      throw new BadRequestError("O campo 'likes' deve ser um número");
     }
 
     const postDatabase = new PostDatabase();
     const postDBExists = await postDatabase.findPostById(id);
 
     if (postDBExists) {
-      throw new Error("'id' já existente");
+      throw new BadRequestError("'Post' já existente");
     }
 
     const newPost = new Post(
@@ -87,36 +88,36 @@ export class PostBusiness {
     const { id, creatorId, content, likes, dislikes } = input;
 
     if (typeof id !== "string" || id.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'id' deve ser uma string com pelo menos 4 caracteres"
       );
     }
 
     if (typeof creatorId !== "string" || creatorId.length < 4) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'creatorId' deve ser uma string com pelo menos 4 caracteres"
       );
     }
 
     if (typeof content !== "string" || content.length < 2) {
-      throw new Error(
+      throw new BadRequestError(
         "O campo 'content' deve ser uma string com pelo menos 2 caracteres"
       );
     }
 
     if (typeof likes !== "number") {
-      throw new Error("O campo 'likes' deve ser um número");
+      throw new BadRequestError("O campo 'likes' deve ser um número");
     }
 
     if (typeof dislikes !== "number") {
-      throw new Error("O campo 'likes' deve ser um número");
+      throw new BadRequestError("O campo 'likes' deve ser um número");
     }
 
     const postDatabase = new PostDatabase();
     const postDBExists = await postDatabase.findPostById(id);
 
     if (!postDBExists) {
-      throw new Error("Usuário não econtrado");
+      throw new BadRequestError("Usuário não econtrado");
     }
 
     postDBExists.id = id;
@@ -137,7 +138,7 @@ export class PostBusiness {
     const postDBExists = await postDatabase.findPostById(id);
 
     if (!postDBExists) {
-      throw new Error("Não foi possível encontrar o post");
+      throw new BadRequestError("Não foi possível encontrar o post");
     }
 
     await postDatabase.deletePost(id);
