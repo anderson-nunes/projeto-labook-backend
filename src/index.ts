@@ -1,7 +1,7 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
-import { UserController } from "./controller/UserController";
 import { userRouter } from "./router/userRouter";
+import { PostController } from "./controller/PostController";
 
 const app = express();
 
@@ -13,3 +13,10 @@ app.listen(3003, () => {
 });
 
 app.use("/users", userRouter);
+
+const postController = new PostController();
+
+app.get("/posts", postController.getPosts);
+app.post("/posts", postController.createPost);
+app.put("/posts/:id", postController.updateUsers);
+app.delete("/posts/:id", postController.deletePost);
