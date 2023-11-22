@@ -1,16 +1,23 @@
+import { GetUsersInputDTO, GetUsersSchema } from "../dtos/users/getUsers.dto";
 import { Request, Response } from "express";
+import { CreateUsersSchema } from "../dtos/users/createUsers.dto";
 import { UserBusiness } from "../business/UserBusiness";
 import { BaseError } from "../errors/BaseError";
+import {
+  DeleteUsersInputDTO,
+  DeleteUsersInputSchema,
+} from "../dtos/users/deleteUsers.dto";
 
 export class UserController {
+  constructor(private userBusiness: UserBusiness) {}
+
   public getUsers = async (req: Request, res: Response) => {
     try {
-      const input = {
-        q: req.query.q as string | undefined,
-      };
+      const input: GetUsersInputDTO = GetUsersSchema.parse({
+        nameToSearch: req.query.name as string | undefined,
+      });
 
-      const userBusiness = new UserBusiness();
-      const response = await userBusiness.getUsers(input);
+      const response = await this.userBusiness.getUsers(input);
 
       res.status(200).send(response);
     } catch (error) {
@@ -26,20 +33,17 @@ export class UserController {
 
   public createUsers = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input = CreateUsersSchema.parse({
         id: req.body.id,
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
-      };
+      });
 
-      const userBusiness = new UserBusiness();
-      const response = await userBusiness.createUsers(input);
+      const response = await this.userBusiness.createUsers(input);
 
-      res
-        .status(201)
-        .send(`Usuário ${response.getName()} criado com sucesso!!`);
+      res.status(201).send(response);
     } catch (error) {
       console.log(error);
 
@@ -53,18 +57,17 @@ export class UserController {
 
   public updateUsers = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input = CreateUsersSchema.parse({
         id: req.params.id,
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
-      };
+      });
 
-      const userBusiness = new UserBusiness();
-      const response = await userBusiness.updateUsers(input);
+      const response = await this.userBusiness.updateUsers(input);
 
-      res.status(201).send(`Cadastro atualizado com sucesso ${response.name}`);
+      res.status(201).send(response);
     } catch (error) {
       console.log(error);
 
@@ -78,14 +81,13 @@ export class UserController {
 
   public deleteUsers = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input: DeleteUsersInputDTO = DeleteUsersInputSchema.parse({
         id: req.params.id,
-      };
+      });
 
-      const userBusiness = new UserBusiness();
-      const response = await userBusiness.deleteUsers(input);
+      const response = await this.userBusiness.deleteUsers(input);
 
-      res.status(200).send(`Usuário ${response.name} deletado com sucesso!!`);
+      res.status(200).send(`${response.getName()} deletado com sucesso!!`);
     } catch (error) {
       console.log(error);
 

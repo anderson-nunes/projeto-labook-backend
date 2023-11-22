@@ -5,27 +5,27 @@ POST http://localhost:3003/users
 Content-Type: application/json
 
   {
-    "id": "u005",
-    "name": "André",
-    "email": "andre@email.com",
-    "password": "33323212",
+    "id": "u006",
+    "name": "Lucas",
+    "email": "lucas@email.com",
+    "password": "34323212",
     "role": "user"
   }
 ###
 
-PUT http://localhost:3003/users/u008
+PUT http://localhost:3003/users/u006
 Content-Type: application/json
 
   {
-    "id": "u008",
-    "name": "Joãozinho",
-    "email": "joazinho@email.com",
+    "id": "u006",
+    "name": "João Lucas",
+    "email": "joaolucas@email.com",
     "password": "88239111",
     "role": "admin"
   }
 ###
 
-DELETE  http://localhost:3003/users/u008
+DELETE  http://localhost:3003/users/u006
 ###
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -37,25 +37,25 @@ POST http://localhost:3003/posts
 Content-Type: application/json
 
   {
-    "id": "post7",
-    "creator_id": "user7",
-    "content": "Sétimo post",
-    "likes": 8,
+    "id": "post5",
+    "creator_id": "user5",
+    "content": "Quinto post",
+    "likes": 5,
     "dislikes": 1
   }
 ###
 
-PUT http://localhost:3003/posts/post1
+PUT http://localhost:3003/posts/post9
 Content-Type: application/json
 
   {
-    "id": "post1",
+    "id": "post8",
     "creator_id": "user1",
-    "content": "Primeiro Post",
+    "content": "Oitavo Post",
     "likes": 10,
     "dislikes": 12
   }
 ###
 
-DELETE  http://localhost:3003/posts/post8
+DELETE  http://localhost:3003/posts/post5
 ###

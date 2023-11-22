@@ -1,14 +1,26 @@
 import { UserDatabase } from "../database/UserDatabase";
+import { DeleteUsersInputDTO } from "../dtos/users/deleteUsers.dto";
 import { BadRequestError } from "../errors/BadRequestError";
-import { User } from "../models/users";
 import { UserDB } from "../types";
+import { User } from "../models/users";
+import {
+  GetUsersInputDTO,
+  GetUsersOutputDTO,
+} from "../dtos/users/getUsers.dto";
+import {
+  UpdateUsersInputDTO,
+  UpdateUsersOutputDTO,
+} from "../dtos/users/updateUsers.dto";
 
 export class UserBusiness {
-  public getUsers = async (input: any) => {
-    const { q } = input;
+  constructor(private userDatabase: UserDatabase) {}
 
-    const userDatabase = new UserDatabase();
-    const usersDB = await userDatabase.findUsers(q);
+  public getUsers = async (
+    input: GetUsersInputDTO
+  ): Promise<GetUsersOutputDTO> => {
+    const { nameToSearch } = input;
+
+    const usersDB = await this.userDatabase.findUsers(nameToSearch);
 
     const users: User[] = usersDB.map(
       (userDB) =>
@@ -24,40 +36,12 @@ export class UserBusiness {
     return users;
   };
 
-  public createUsers = async (input: any) => {
+  public createUsers = async (
+    input: UpdateUsersInputDTO
+  ): Promise<UpdateUsersOutputDTO> => {
     const { id, name, email, password, role } = input;
 
-    if (typeof id !== "string" || id.length < 4) {
-      throw new BadRequestError(
-        "O campo 'id' deve ser uma string com pelo menos 4 caracteres"
-      );
-    }
-
-    if (typeof name !== "string" || name.length < 3) {
-      throw new BadRequestError(
-        "O campo 'nome' deve ser uma string com pelo menos 3 caracteres"
-      );
-    }
-
-    if (!email || !email.includes("@")) {
-      throw new BadRequestError(
-        `O campo 'email' deve ser um endereço de e-mail válido`
-      );
-    }
-
-    if (typeof password !== "string" || password.length < 6) {
-      throw new BadRequestError(
-        `O campo 'password' deve ter pelo menos 6 caracteres.`
-      );
-    }
-    if (typeof role !== "string" || role.length < 4) {
-      throw new BadRequestError(
-        `O campo 'role' deve ser uma string com pelo menos 4 caracteres`
-      );
-    }
-
-    const userDatabase = new UserDatabase();
-    const userDBExists = await userDatabase.findUserById(id);
+    const userDBExists = await this.userDatabase.findUserById(id);
 
     if (userDBExists) {
       throw new BadRequestError("'id' já existente");
@@ -81,76 +65,98 @@ export class UserBusiness {
       created_at: newUser.getCreatedAt(),
     };
 
-    await userDatabase.insertUser(newUserDB);
+    await this.userDatabase.insertUser(newUserDB);
 
-    return newUser;
+    const response: UpdateUsersOutputDTO = {
+      message: "Usuário registrado com sucesso",
+      users: {
+        id: newUser.getId(),
+        name: newUser.getName(),
+        email: newUser.getEmail(),
+        password: newUser.getPassword(),
+        role: newUser.getRole(),
+        createdAt: newUser.getCreatedAt(),
+      },
+    };
+
+    return response;
   };
 
-  public updateUsers = async (input: any) => {
+  public updateUsers = async (
+    input: UpdateUsersInputDTO
+  ): Promise<UpdateUsersOutputDTO> => {
     const { id, name, email, password, role } = input;
 
-    if (typeof id !== "string" || id.length < 4) {
-      throw new BadRequestError(
-        "O campo 'id' deve ser uma string com pelo menos 4 caracteres"
-      );
-    }
-
-    if (typeof name !== "string" || name.length < 3) {
-      throw new BadRequestError(
-        "O campo 'nome' deve ser uma string com pelo menos 3 caracteres"
-      );
-    }
-
-    if (!email || !email.includes("@")) {
-      throw new BadRequestError(
-        `O campo 'email' deve ser um endereço de e-mail válido`
-      );
-    }
-
-    if (typeof password !== "string" || password.length < 6) {
-      throw new BadRequestError(
-        `O campo 'password' deve ter pelo menos 6 caracteres.`
-      );
-    }
-    if (typeof role !== "string" || role.length < 4) {
-      throw new BadRequestError(
-        `O campo 'role' deve ser uma string com pelo menos 4 caracteres`
-      );
-    }
-
-    const userDatabase = new UserDatabase();
-    const userDBExists = await userDatabase.findUserById(id);
+    const userDBExists = await this.userDatabase.findUserById(id);
 
     if (!userDBExists) {
       throw new BadRequestError("Usuário não econtrado");
     }
 
-    userDBExists.name = name;
-    userDBExists.email = email;
-    userDBExists.password = password;
-    userDBExists.role = role;
+    const user = new User(
+      userDBExists.id,
+      userDBExists.name,
+      userDBExists.email,
+      userDBExists.password,
+      userDBExists.role,
+      userDBExists.created_at
+    );
 
-    await userDatabase.updateUser(userDBExists);
+    id && user.setId(id);
+    name && user.setName(name);
+    email && user.setEmail(email);
+    password && user.setPassword(password);
+    role && user.setRole(role);
 
-    return userDBExists;
+    const updateUserDB: UserDB = {
+      id: user.getId(),
+      name: user.getName(),
+      email: user.getEmail(),
+      password: user.getPassword(),
+      role: user.getRole(),
+      created_at: user.getCreatedAt(),
+    };
+
+    await this.userDatabase.updateUser(updateUserDB);
+
+    const response: UpdateUsersOutputDTO = {
+      message: "Usuário editado com sucesso",
+      users: {
+        id: user.getId(),
+        name: user.getName(),
+        email: user.getEmail(),
+        password: user.getPassword(),
+        role: user.getRole(),
+        createdAt: user.getCreatedAt(),
+      },
+    };
+
+    return response;
   };
 
-  public deleteUsers = async (input: any) => {
+  public deleteUsers = async (input: DeleteUsersInputDTO): Promise<User> => {
     const { id } = input;
 
     if (typeof id !== "string") {
       throw new BadRequestError("O campo 'id' deve ser umas string");
     }
 
-    const userDatabase = new UserDatabase();
-    const userDBExists = await userDatabase.findUserById(id);
+    const userDBExists = await this.userDatabase.findUserById(id);
 
     if (!userDBExists) {
       throw new BadRequestError("Não foi possível encontrar o usuário");
     }
 
-    await userDatabase.deleteUser(id);
+    await this.userDatabase.deleteUser(id);
 
-    return userDBExists;
+    const user: User = new User(
+      userDBExists.id,
+      userDBExists.name,
+      userDBExists.email,
+      userDBExists.password,
+      userDBExists.role,
+      userDBExists.created_at
+    );
+    return user;
   };
 }

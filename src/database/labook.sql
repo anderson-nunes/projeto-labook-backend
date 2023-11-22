@@ -44,4 +44,51 @@ VALUES
 SELECT * FROM posts;
 
 
+-- CREATE TABLE likes_dislikes (
+--   user_id TEXT NOT NULL,
+--   post_id TEXT NOT NULL,
+--   like INTEGER NOT NULL,
+--   FOREIGN KEY (user_id) REFERENCES users (id)
+--     ON UPDATE CASCADE
+--     ON DELETE CASCADE,
+--   FOREIGN KEY (post_id) REFERENCES posts (id)
+--     ON UPDATE CASCADE
+--     ON DELETE CASCADE
+-- );
+
+-- INSERT INTO likes_dislikes
+-- VALUES
+-- (
+--   'u002',
+--   'v001',
+--   1
+-- ),
+-- (
+--   'u002',
+--   'v002',
+--   0
+-- );
+
+-- INSERT INTO likes_dislikes
+-- VALUES
+-- (
+--   'u001',
+--   'v001',
+--   1
+-- ),
+-- (
+--   'u001',
+--   'v002',
+--   1
+-- );
+
+-- UPDATE posts
+-- SET likes = 1
+-- WHERE id = 'v001';
+
+-- UPDATE posts
+-- SET dislikes = 1
+-- WHERE id = 'v002';
+
+
 

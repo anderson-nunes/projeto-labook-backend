@@ -1,12 +1,23 @@
+import { GetPostsInputDTO, GetPostsSchema } from "../dtos/posts/getPosts.dto";
 import { Request, Response } from "express";
+import { CreatePostSchema } from "../dtos/posts/createPost.dto";
 import { PostBusiness } from "../business/PostBusiness";
 import { BaseError } from "../errors/BaseError";
+import {
+  DeletePostInputDTO,
+  DeletePostInputSchema,
+} from "../dtos/posts/deletePost.dto";
 
 export class PostController {
+  constructor(private postBusiness: PostBusiness) {}
+
   public getPosts = async (req: Request, res: Response) => {
     try {
-      const postBusiness = new PostBusiness();
-      const response = await postBusiness.getPosts();
+      const input: GetPostsInputDTO = GetPostsSchema.parse({
+        nameToSearch: req.query.name as string | undefined,
+      });
+
+      const response = await this.postBusiness.getPosts(input);
 
       res.status(200).send(response);
     } catch (error) {
@@ -22,20 +33,17 @@ export class PostController {
 
   public createPost = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input = CreatePostSchema.parse({
         id: req.body.id,
         creatorId: req.body.creator_id,
         content: req.body.content,
         likes: req.body.likes,
         dislikes: req.body.dislikes,
-      };
+      });
 
-      const postBusiness = new PostBusiness();
-      const response = await postBusiness.createPost(input);
+      const response = await this.postBusiness.createPost(input);
 
-      res
-        .status(201)
-        .send(`O ${response.getContent()} foi criado com sucesso!!`);
+      res.status(201).send(response);
     } catch (error) {
       console.log(error);
 
@@ -47,22 +55,19 @@ export class PostController {
     }
   };
 
-  public updateUsers = async (req: Request, res: Response) => {
+  public updatePost = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input = CreatePostSchema.parse({
         id: req.body.id,
         creatorId: req.body.creator_id,
         content: req.body.content,
         likes: req.body.likes,
         dislikes: req.body.dislikes,
-      };
+      });
 
-      const postBusiness = new PostBusiness();
-      const response = await postBusiness.updatePost(input);
+      const response = await this.postBusiness.updatePost(input);
 
-      res
-        .status(200)
-        .send(`Post do ${response.creator_id} atualizado com sucesso `);
+      res.status(200).send(response);
     } catch (error) {
       console.log(error);
 
@@ -76,16 +81,15 @@ export class PostController {
 
   public deletePost = async (req: Request, res: Response) => {
     try {
-      const input = {
+      const input: DeletePostInputDTO = DeletePostInputSchema.parse({
         id: req.params.id,
-      };
+      });
 
-      const postBusiness = new PostBusiness();
-      const response = postBusiness.deletePost(input);
+      const response = this.postBusiness.deletePost(input);
 
       res
         .status(200)
-        .send(`O ${(await response).content} foi deletado com sucesso!!`);
+        .send(`O ${(await response).getContent()} foi deletado com sucesso!!`);
     } catch (error) {
       console.log(error);
 
