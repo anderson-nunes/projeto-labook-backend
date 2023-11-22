@@ -1,5 +1,5 @@
-import { PostDB } from "../types";
 import { BaseDatabase } from "./BaseDatabase";
+import { PostDB } from "../types";
 
 export class PostDatabase extends BaseDatabase {
   public static TABLE_POST = "posts";
