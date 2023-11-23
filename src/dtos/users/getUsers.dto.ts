@@ -1,11 +1,11 @@
 import z from "zod";
-import { User } from "../../models/users";
+import { User, UserModel } from "../../models/users";
 
 export interface GetUsersInputDTO {
   nameToSearch?: string;
 }
 
-export type GetUsersOutputDTO = User[];
+export type GetUsersOutputDTO = UserModel[];
 
 export const GetUsersSchema = z
   .object({

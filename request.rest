@@ -5,10 +5,9 @@ POST http://localhost:3003/users
 Content-Type: application/json
 
   {
-    "id": "u006",
-    "name": "Lucas",
-    "email": "lucas@email.com",
-    "password": "34323212",
+    "name": "Joel",
+    "email": "joel@email.com",
+    "password": "23323212",
     "role": "user"
   }
 ###

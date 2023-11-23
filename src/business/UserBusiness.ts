@@ -1,8 +1,11 @@
-import { UserDatabase } from "../database/UserDatabase";
+import { SignupInputDTO, SignupOutputDTO } from "../dtos/users/signup.dto";
+import { TokenManager, TokenPayload } from "../services/TokenManager";
 import { DeleteUsersInputDTO } from "../dtos/users/deleteUsers.dto";
 import { BadRequestError } from "../errors/BadRequestError";
+import { UserDatabase } from "../database/UserDatabase";
+import { IdGenerator } from "../services/IdGenerator";
 import { UserDB } from "../types";
-import { User } from "../models/users";
+import { USER_ROLES, User } from "../models/users";
 import {
   GetUsersInputDTO,
   GetUsersOutputDTO,
@@ -13,7 +16,11 @@ import {
 } from "../dtos/users/updateUsers.dto";
 
 export class UserBusiness {
-  constructor(private userDatabase: UserDatabase) {}
+  constructor(
+    private userDatabase: UserDatabase,
+    private idGenerator: IdGenerator,
+    private tokenManager: TokenManager
+  ) {}
 
   public getUsers = async (
     input: GetUsersInputDTO
@@ -22,24 +29,28 @@ export class UserBusiness {
 
     const usersDB = await this.userDatabase.findUsers(nameToSearch);
 
-    const users: User[] = usersDB.map(
-      (userDB) =>
-        new User(
-          userDB.id,
-          userDB.name,
-          userDB.email,
-          userDB.password,
-          userDB.role,
-          userDB.created_at
-        )
-    );
-    return users;
+    const users = usersDB.map((userDB) => {
+      const user = new User(
+        userDB.id,
+        userDB.name,
+        userDB.email,
+        userDB.password,
+        userDB.role as USER_ROLES,
+        userDB.created_at
+      );
+
+      return user.toBusinessModel();
+    });
+
+    const response: GetUsersOutputDTO = users;
+
+    return response;
   };
 
-  public createUsers = async (
-    input: UpdateUsersInputDTO
-  ): Promise<UpdateUsersOutputDTO> => {
-    const { id, name, email, password, role } = input;
+  public signup = async (input: SignupInputDTO): Promise<SignupOutputDTO> => {
+    const { name, email, password } = input;
+
+    const id = this.idGenerator.generate();
 
     const userDBExists = await this.userDatabase.findUserById(id);
 
@@ -52,31 +63,24 @@ export class UserBusiness {
       name,
       email,
       password,
-      role,
+      USER_ROLES.NORMAL,
       new Date().toISOString()
     );
 
-    const newUserDB: UserDB = {
-      id: newUser.getId(),
-      name: newUser.getName(),
-      email: newUser.getEmail(),
-      password: newUser.getPassword(),
-      role: newUser.getRole(),
-      created_at: newUser.getCreatedAt(),
-    };
-
+    const newUserDB = newUser.toDBModel();
     await this.userDatabase.insertUser(newUserDB);
 
-    const response: UpdateUsersOutputDTO = {
-      message: "Usuário registrado com sucesso",
-      users: {
-        id: newUser.getId(),
-        name: newUser.getName(),
-        email: newUser.getEmail(),
-        password: newUser.getPassword(),
-        role: newUser.getRole(),
-        createdAt: newUser.getCreatedAt(),
-      },
+    const payload: TokenPayload = {
+      id: newUser.getId(),
+      name: newUser.getName(),
+      role: newUser.getRole(),
+    };
+
+    const token = this.tokenManager.createToken(payload);
+
+    const response: SignupOutputDTO = {
+      message: "Cadastro realizado com sucesso",
+      token,
     };
 
     return response;
@@ -98,7 +102,7 @@ export class UserBusiness {
       userDBExists.name,
       userDBExists.email,
       userDBExists.password,
-      userDBExists.role,
+      userDBExists.role as USER_ROLES,
       userDBExists.created_at
     );
 
@@ -106,7 +110,7 @@ export class UserBusiness {
     name && user.setName(name);
     email && user.setEmail(email);
     password && user.setPassword(password);
-    role && user.setRole(role);
+    role && user.setRole(role as USER_ROLES);
 
     const updateUserDB: UserDB = {
       id: user.getId(),
@@ -154,7 +158,7 @@ export class UserBusiness {
       userDBExists.name,
       userDBExists.email,
       userDBExists.password,
-      userDBExists.role,
+      userDBExists.role as USER_ROLES,
       userDBExists.created_at
     );
     return user;
