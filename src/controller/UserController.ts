@@ -1,6 +1,7 @@
 import { GetUsersInputDTO, GetUsersSchema } from "../dtos/users/getUsers.dto";
 import { Request, Response } from "express";
-import { CreateUsersSchema } from "../dtos/users/createUsers.dto";
+import { SignupSchema } from "../dtos/users/signup.dto";
+import { UpdateUsersSchema } from "../dtos/users/updateUsers.dto";
 import { UserBusiness } from "../business/UserBusiness";
 import { BaseError } from "../errors/BaseError";
 import {
@@ -31,17 +32,16 @@ export class UserController {
     }
   };
 
-  public createUsers = async (req: Request, res: Response) => {
+  public signup = async (req: Request, res: Response) => {
     try {
-      const input = CreateUsersSchema.parse({
-        id: req.body.id,
+      const input = SignupSchema.parse({
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
       });
 
-      const response = await this.userBusiness.createUsers(input);
+      const response = await this.userBusiness.signup(input);
 
       res.status(201).send(response);
     } catch (error) {
@@ -57,7 +57,7 @@ export class UserController {
 
   public updateUsers = async (req: Request, res: Response) => {
     try {
-      const input = CreateUsersSchema.parse({
+      const input = UpdateUsersSchema.parse({
         id: req.params.id,
         name: req.body.name,
         email: req.body.email,
