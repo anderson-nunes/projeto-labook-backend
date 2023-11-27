@@ -1,11 +1,11 @@
 import { SignupInputDTO, SignupOutputDTO } from "../dtos/users/signup.dto";
 import { TokenManager, TokenPayload } from "../services/TokenManager";
 import { DeleteUsersInputDTO } from "../dtos/users/deleteUsers.dto";
+import { USER_ROLES, User } from "../models/users";
 import { BadRequestError } from "../errors/BadRequestError";
 import { UserDatabase } from "../database/UserDatabase";
 import { IdGenerator } from "../services/IdGenerator";
 import { UserDB } from "../types";
-import { USER_ROLES, User } from "../models/users";
 import {
   GetUsersInputDTO,
   GetUsersOutputDTO,
@@ -14,6 +14,8 @@ import {
   UpdateUsersInputDTO,
   UpdateUsersOutputDTO,
 } from "../dtos/users/updateUsers.dto";
+import { LoginInputDTO, LoginOutputDTO } from "../dtos/users/login.dto";
+import { NotFoundError } from "../errors/NotFoundError";
 
 export class UserBusiness {
   constructor(
@@ -162,5 +164,43 @@ export class UserBusiness {
       userDBExists.created_at
     );
     return user;
+  };
+
+  public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
+    const { email, password } = input;
+
+    const userDB = await this.userDatabase.findUserByEmail(email);
+
+    if (!userDB) {
+      throw new NotFoundError("'email' não encontrado");
+    }
+
+    if (password !== userDB.password) {
+      throw new BadRequestError("'email' ou 'password' incorretos");
+    }
+
+    const user = new User(
+      userDB.id,
+      userDB.name,
+      userDB.email,
+      userDB.password,
+      userDB.role as USER_ROLES,
+      new Date().toISOString()
+    );
+
+    const payload: TokenPayload = {
+      id: user.getId(),
+      name: user.getName(),
+      role: user.getRole(),
+    };
+
+    const token = this.tokenManager.createToken(payload);
+
+    const response: LoginOutputDTO = {
+      message: "Login realizado com sucesso",
+      token,
+    };
+
+    return response;
   };
 }
