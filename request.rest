@@ -1,13 +1,24 @@
 GET http://localhost:3003/users
 ###
 
-POST http://localhost:3003/users
+POST http://localhost:3003/users/signup
 Content-Type: application/json
 
   {
-    "name": "Joel",
-    "email": "joel@email.com",
-    "password": "23323212",
+    "name": "Julio",
+    "email": "julio@email.com",
+    "password": "12543212",
+    "role": "user"
+  }
+###
+
+POST http://localhost:3003/users/login
+Content-Type: application/json
+
+  {
+    "name": "Julio",
+    "email": "julio@email.com",
+    "password": "12543212",
     "role": "user"
   }
 ###
@@ -44,15 +55,15 @@ Content-Type: application/json
   }
 ###
 
-PUT http://localhost:3003/posts/post9
+PUT http://localhost:3003/posts/post4
 Content-Type: application/json
 
   {
-    "id": "post8",
-    "creator_id": "user1",
-    "content": "Oitavo Post",
-    "likes": 10,
-    "dislikes": 12
+    "id": "post4",
+    "creator_id": "user4",
+    "content": "Quarto Post",
+    "likes": 5,
+    "dislikes": 1
   }
 ###
 

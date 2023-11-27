@@ -1,13 +1,15 @@
 import { GetUsersInputDTO, GetUsersSchema } from "../dtos/users/getUsers.dto";
 import { Request, Response } from "express";
-import { SignupSchema } from "../dtos/users/signup.dto";
 import { UpdateUsersSchema } from "../dtos/users/updateUsers.dto";
+import { SignupSchema } from "../dtos/users/signup.dto";
 import { UserBusiness } from "../business/UserBusiness";
 import { BaseError } from "../errors/BaseError";
 import {
   DeleteUsersInputDTO,
   DeleteUsersInputSchema,
 } from "../dtos/users/deleteUsers.dto";
+import { LoginSchema } from "../dtos/users/login.dto";
+import { ZodError } from "zod";
 
 export class UserController {
   constructor(private userBusiness: UserBusiness) {}
@@ -92,6 +94,29 @@ export class UserController {
       console.log(error);
 
       if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message);
+      } else {
+        res.status(500).send("Erro inesperado");
+      }
+    }
+  };
+
+  public login = async (req: Request, res: Response) => {
+    try {
+      const input = LoginSchema.parse({
+        email: req.body.email,
+        password: req.body.password,
+      });
+
+      const output = await this.userBusiness.login(input);
+
+      res.status(200).send(output);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof ZodError) {
+        res.status(400).send(error.issues);
+      } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message);
       } else {
         res.status(500).send("Erro inesperado");
