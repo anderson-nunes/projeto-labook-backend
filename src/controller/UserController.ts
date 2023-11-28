@@ -18,6 +18,7 @@ export class UserController {
     try {
       const input: GetUsersInputDTO = GetUsersSchema.parse({
         nameToSearch: req.query.name as string | undefined,
+        token: req.headers.authorization,
       });
 
       const response = await this.userBusiness.getUsers(input);
