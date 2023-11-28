@@ -16,18 +16,30 @@ import {
 } from "../dtos/users/updateUsers.dto";
 import { LoginInputDTO, LoginOutputDTO } from "../dtos/users/login.dto";
 import { NotFoundError } from "../errors/NotFoundError";
+import { HashManager } from "../services/HashManager";
 
 export class UserBusiness {
   constructor(
     private userDatabase: UserDatabase,
     private idGenerator: IdGenerator,
-    private tokenManager: TokenManager
+    private tokenManager: TokenManager,
+    private hashManager: HashManager
   ) {}
 
   public getUsers = async (
     input: GetUsersInputDTO
   ): Promise<GetUsersOutputDTO> => {
-    const { nameToSearch } = input;
+    const { nameToSearch, token } = input;
+
+    const payload = this.tokenManager.getPayload(token);
+
+    if (payload === null) {
+      throw new BadRequestError("token inválido");
+    }
+
+    if (payload.role !== USER_ROLES.ADMIN) {
+      throw new BadRequestError("Somente admins podem acessar esse recurso");
+    }
 
     const usersDB = await this.userDatabase.findUsers(nameToSearch);
 
@@ -60,11 +72,13 @@ export class UserBusiness {
       throw new BadRequestError("'id' já existente");
     }
 
+    const hashedPassword = await this.hashManager.hash(password);
+
     const newUser = new User(
       id,
       name,
       email,
-      password,
+      hashedPassword,
       USER_ROLES.NORMAL,
       new Date().toISOString()
     );
@@ -82,6 +96,53 @@ export class UserBusiness {
 
     const response: SignupOutputDTO = {
       message: "Cadastro realizado com sucesso",
+      token,
+    };
+
+    return response;
+  };
+
+  public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
+    const { email, password } = input;
+
+    const userDB = await this.userDatabase.findUserByEmail(email);
+
+    if (!userDB) {
+      throw new NotFoundError("'email' não encontrado");
+    }
+    // o password hasheado está no banco de dados
+    const hashedPassword = userDB.password;
+
+    // o serviço hashManager analisa o password do body (plaintext) e o hash
+    const isPasswordCorrect = await this.hashManager.compare(
+      password,
+      hashedPassword
+    );
+
+    // validamos o resultado
+    if (!isPasswordCorrect) {
+      throw new BadRequestError("'email' ou 'password' incorretos");
+    }
+
+    const user = new User(
+      userDB.id,
+      userDB.name,
+      userDB.email,
+      userDB.password,
+      userDB.role as USER_ROLES,
+      new Date().toISOString()
+    );
+
+    const payload: TokenPayload = {
+      id: user.getId(),
+      name: user.getName(),
+      role: user.getRole(),
+    };
+
+    const token = this.tokenManager.createToken(payload);
+
+    const response: LoginOutputDTO = {
+      message: "Login realizado com sucesso",
       token,
     };
 
@@ -164,43 +225,5 @@ export class UserBusiness {
       userDBExists.created_at
     );
     return user;
-  };
-
-  public login = async (input: LoginInputDTO): Promise<LoginOutputDTO> => {
-    const { email, password } = input;
-
-    const userDB = await this.userDatabase.findUserByEmail(email);
-
-    if (!userDB) {
-      throw new NotFoundError("'email' não encontrado");
-    }
-
-    if (password !== userDB.password) {
-      throw new BadRequestError("'email' ou 'password' incorretos");
-    }
-
-    const user = new User(
-      userDB.id,
-      userDB.name,
-      userDB.email,
-      userDB.password,
-      userDB.role as USER_ROLES,
-      new Date().toISOString()
-    );
-
-    const payload: TokenPayload = {
-      id: user.getId(),
-      name: user.getName(),
-      role: user.getRole(),
-    };
-
-    const token = this.tokenManager.createToken(payload);
-
-    const response: LoginOutputDTO = {
-      message: "Login realizado com sucesso",
-      token,
-    };
-
-    return response;
   };
 }

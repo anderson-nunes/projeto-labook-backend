@@ -11,10 +11,10 @@ CREATE TABLE users (
 
 INSERT INTO users(id, name, email, password, role)
 VALUES
-('u001', 'Anderson', 'anderson@email.com', 'and@123', 'admin'),
-('u002', 'Patricia', 'patricia@email.com', 'pati@123', 'user'),
-('u003', 'Everton', 'everton@email.com', 'eve@123', 'user'),
-('u004', 'Jeferson', 'jeferson@email.com', 'jef@123', 'user');
+('u001', 'Anderson', 'anderson@email.com', 'and123', 'ADMIN'),
+('u002', 'Patricia', 'patricia@email.com', 'pati123', 'NORMAL'),
+('u003', 'Everton', 'everton@email.com', 'eve123', 'NORMAL'),
+('u004', 'Jeferson', 'jeferson@email.com', 'jef123', 'NORMAL');
 
 SELECT * FROM users;
 
