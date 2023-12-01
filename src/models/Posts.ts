@@ -148,8 +148,6 @@ export class Post {
   }
 
   public toBusinissModel(): PostModel {
-    console.log(this);
-
     return {
       id: this.id,
       content: this.content,

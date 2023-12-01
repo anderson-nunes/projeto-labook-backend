@@ -42,21 +42,4 @@ export class UserDatabase extends BaseDatabase {
   public async insertUser(newUserDB: UserDB) {
     await BaseDatabase.connection(UserDatabase.TABLE_USERS).insert(newUserDB);
   }
-
-  public async updateUser(newUser: UserDB) {
-    await BaseDatabase.connection(UserDatabase.TABLE_USERS)
-      .where({ id: newUser.id })
-      .update({
-        name: newUser.name,
-        email: newUser.email,
-        password: newUser.password,
-        role: newUser.role,
-      });
-  }
-
-  public async deleteUser(id: string) {
-    await BaseDatabase.connection(UserDatabase.TABLE_USERS)
-      .where({ id })
-      .delete();
-  }
 }
