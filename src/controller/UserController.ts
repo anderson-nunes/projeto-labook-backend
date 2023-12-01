@@ -3,13 +3,13 @@ import { Request, Response } from "express";
 import { UpdateUsersSchema } from "../dtos/users/updateUsers.dto";
 import { SignupSchema } from "../dtos/users/signup.dto";
 import { UserBusiness } from "../business/UserBusiness";
+import { LoginSchema } from "../dtos/users/login.dto";
 import { BaseError } from "../errors/BaseError";
+import { ZodError } from "zod";
 import {
   DeleteUsersInputDTO,
   DeleteUsersInputSchema,
 } from "../dtos/users/deleteUsers.dto";
-import { LoginSchema } from "../dtos/users/login.dto";
-import { ZodError } from "zod";
 
 export class UserController {
   constructor(private userBusiness: UserBusiness) {}

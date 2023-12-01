@@ -1,12 +1,12 @@
 import { GetPostsInputDTO, GetPostsSchema } from "../dtos/posts/getPosts.dto";
+import { LikeOrDislikePostSchema } from "../dtos/posts/likeOrDislikePost.dto";
 import { Request, Response } from "express";
 import { CreatePostSchema } from "../dtos/posts/createPost.dto";
+import { DeletePostSchema } from "../dtos/posts/deletePost.dto";
+import { UpdatePostSchema } from "../dtos/posts/updatePost.dto";
 import { PostBusiness } from "../business/PostBusiness";
 import { BaseError } from "../errors/BaseError";
-import {
-  DeletePostInputDTO,
-  DeletePostInputSchema,
-} from "../dtos/posts/deletePost.dto";
+import { ZodError } from "zod";
 
 export class PostController {
   constructor(private postBusiness: PostBusiness) {}
@@ -14,7 +14,7 @@ export class PostController {
   public getPosts = async (req: Request, res: Response) => {
     try {
       const input: GetPostsInputDTO = GetPostsSchema.parse({
-        nameToSearch: req.query.name as string | undefined,
+        token: req.headers.authorization,
       });
 
       const response = await this.postBusiness.getPosts(input);
@@ -34,11 +34,8 @@ export class PostController {
   public createPost = async (req: Request, res: Response) => {
     try {
       const input = CreatePostSchema.parse({
-        id: req.body.id,
-        creatorId: req.body.creator_id,
         content: req.body.content,
-        likes: req.body.likes,
-        dislikes: req.body.dislikes,
+        token: req.headers.authorization,
       });
 
       const response = await this.postBusiness.createPost(input);
@@ -57,12 +54,10 @@ export class PostController {
 
   public updatePost = async (req: Request, res: Response) => {
     try {
-      const input = CreatePostSchema.parse({
-        id: req.body.id,
-        creatorId: req.body.creator_id,
+      const input = UpdatePostSchema.parse({
+        token: req.headers.authorization,
         content: req.body.content,
-        likes: req.body.likes,
-        dislikes: req.body.dislikes,
+        idToEdit: req.params.id,
       });
 
       const response = await this.postBusiness.updatePost(input);
@@ -81,19 +76,42 @@ export class PostController {
 
   public deletePost = async (req: Request, res: Response) => {
     try {
-      const input: DeletePostInputDTO = DeletePostInputSchema.parse({
-        id: req.params.id,
+      const input = DeletePostSchema.parse({
+        token: req.headers.authorization,
+        idToDelete: req.params.id,
       });
 
-      const response = this.postBusiness.deletePost(input);
+      const response = await this.postBusiness.deletePost(input);
 
-      res
-        .status(200)
-        .send(`O ${(await response).getContent()} foi deletado com sucesso!!`);
+      res.status(200).send(response);
     } catch (error) {
       console.log(error);
 
       if (error instanceof BaseError) {
+        res.status(error.statusCode).send(error.message);
+      } else {
+        res.status(500).send("Erro inesperado");
+      }
+    }
+  };
+
+  public likeOrDislikePost = async (req: Request, res: Response) => {
+    try {
+      const input = LikeOrDislikePostSchema.parse({
+        token: req.headers.authorization,
+        postId: req.params.id,
+        like: req.body.like,
+      });
+
+      const output = await this.postBusiness.likeOrDislikePost(input);
+
+      res.status(200).send(output);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof ZodError) {
+        res.status(400).send(error.issues);
+      } else if (error instanceof BaseError) {
         res.status(error.statusCode).send(error.message);
       } else {
         res.status(500).send("Erro inesperado");
