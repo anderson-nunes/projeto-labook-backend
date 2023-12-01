@@ -1,10 +1,13 @@
 import { SignupInputDTO, SignupOutputDTO } from "../dtos/users/signup.dto";
+import { LoginInputDTO, LoginOutputDTO } from "../dtos/users/login.dto";
 import { TokenManager, TokenPayload } from "../services/TokenManager";
 import { DeleteUsersInputDTO } from "../dtos/users/deleteUsers.dto";
-import { USER_ROLES, User } from "../models/users";
+import { USER_ROLES, User } from "../models/Users";
 import { BadRequestError } from "../errors/BadRequestError";
+import { NotFoundError } from "../errors/NotFoundError";
 import { UserDatabase } from "../database/UserDatabase";
 import { IdGenerator } from "../services/IdGenerator";
+import { HashManager } from "../services/HashManager";
 import { UserDB } from "../types";
 import {
   GetUsersInputDTO,
@@ -14,9 +17,6 @@ import {
   UpdateUsersInputDTO,
   UpdateUsersOutputDTO,
 } from "../dtos/users/updateUsers.dto";
-import { LoginInputDTO, LoginOutputDTO } from "../dtos/users/login.dto";
-import { NotFoundError } from "../errors/NotFoundError";
-import { HashManager } from "../services/HashManager";
 
 export class UserBusiness {
   constructor(

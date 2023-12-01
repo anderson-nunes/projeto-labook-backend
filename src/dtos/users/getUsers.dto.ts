@@ -1,5 +1,5 @@
 import z from "zod";
-import { UserModel } from "../../models/users";
+import { UserModel } from "../../models/Users";
 
 export interface GetUsersInputDTO {
   nameToSearch?: string;

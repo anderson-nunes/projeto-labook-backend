@@ -1,32 +1,15 @@
 import z from "zod";
 
 export interface CreatePostInputDTO {
-  id: string;
-  creatorId: string;
   content: string;
-  likes: number;
-  dislikes: number;
+  token: string;
 }
 
-export interface CreatePostOutputDTO {
-  message: string;
-  posts: {
-    id: string;
-    creatorId: string;
-    content: string;
-    likes: number;
-    dislikes: number;
-    createdAt: string;
-    updatedAt: string;
-  };
-}
+export type CreatePostOutputDTO = undefined;
 
 export const CreatePostSchema = z
   .object({
-    id: z.string().min(1),
-    creatorId: z.string().min(5),
     content: z.string().min(2),
-    likes: z.number(),
-    dislikes: z.number(),
+    token: z.string().min(2),
   })
   .transform((data) => data as CreatePostInputDTO);

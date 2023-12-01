@@ -1,14 +1,14 @@
 import z from "zod";
-import { Post } from "../../models/posts";
+import { PostModel } from "../../models/Posts";
 
 export interface GetPostsInputDTO {
-  nameToSearch?: string;
+  token: string;
 }
 
-export type GetPostsOutputDTO = Post[];
+export type GetPostsOutputDTO = PostModel[];
 
 export const GetPostsSchema = z
   .object({
-    nameToSearch: z.string().min(1).optional(),
+    token: z.string().min(2),
   })
   .transform((data) => data as GetPostsInputDTO);
