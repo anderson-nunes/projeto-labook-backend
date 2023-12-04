@@ -6,7 +6,7 @@ O Labook é uma rede social com o objetivo de promover a conexão e interação 
 
 https://documenter.getpostman.com/view/28316400/2s9YeK3VTG
 
-## Installation Instructions
+## Instruções de instalação
 
 1. Clone o repositório.
 2. No gerenciador de pacotes NPM, execute:
